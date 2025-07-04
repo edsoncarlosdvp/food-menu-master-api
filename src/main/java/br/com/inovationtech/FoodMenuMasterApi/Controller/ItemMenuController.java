@@ -92,7 +92,7 @@ public class ItemMenuController {
      * GET /api/itens-cardapio/buscar?nome=pizza&categoria=PIZZA&precoMin=10&precoMax=50&ativo=true
      */
     @GetMapping("/buscar")
-    public ResponseEntity<Page<ItemMenuDTO>> buscarComFiltros(
+    public ResponseEntity<Page<ItemMenuDTO>> SearchingWithFilters(
             @RequestParam(required = false) String nome,
             @RequestParam(required = false) CategoryItem category,
             @RequestParam(required = false) BigDecimal precoMin,
@@ -102,7 +102,7 @@ public class ItemMenuController {
         
         log.info("Requisição para buscar itens com filtros - Nome: {}, Categoria: {}", nome, category);
         
-        Page<ItemMenuDTO> itens = service.buscarComFiltros(nome, category, precoMin, precoMax, ativo, pageable);
+        Page<ItemMenuDTO> itens = service.SearchingWithFilters(nome, category, precoMin, precoMax, ativo, pageable);
         return ResponseEntity.ok(itens);
     }
     
@@ -111,14 +111,14 @@ public class ItemMenuController {
      * GET /api/itens-cardapio/categoria/PIZZA?ativo=true
      */
     @GetMapping("/categoria/{categoria}")
-    public ResponseEntity<Page<ItemMenuDTO>> buscarPorCategoria(
+    public ResponseEntity<Page<ItemMenuDTO>> searchByCategory(
             @PathVariable CategoryItem category,
-            @RequestParam(defaultValue = "true") Boolean ativo,
+            @RequestParam(defaultValue = "true") Boolean active,
             @PageableDefault(size = 20, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
         
         log.info("Requisição para buscar itens por categoria: {}", category);
         
-        Page<ItemMenuDTO> itens = service.getByCategory(category, ativo, pageable);
+        Page<ItemMenuDTO> itens = service.getByCategory(category, active, pageable);
         return ResponseEntity.ok(itens);
     }
     
@@ -127,10 +127,10 @@ public class ItemMenuController {
      * POST /api/itens-cardapio
      */
     @PostMapping
-    public ResponseEntity<ItemMenuDTO> criar(@Valid @RequestBody ItemMenuDTO dto) {
+    public ResponseEntity<ItemMenuDTO> createItem(@Valid @RequestBody ItemMenuDTO dto) {
         log.info("Requisição para criar novo item: {}", dto.getName());
         
-        ItemMenuDTO itemCriado = service.criar(dto);
+        ItemMenuDTO itemCriado = service.createItem(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(itemCriado);
     }
     
@@ -139,13 +139,13 @@ public class ItemMenuController {
      * PUT /api/itens-cardapio/1
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ItemMenuDTO> atualizar(
+    public ResponseEntity<ItemMenuDTO> updateItem(
             @PathVariable Long id, 
             @Valid @RequestBody ItemMenuDTO dto) {
         log.info("Requisição para atualizar item ID: {}", id);
         
-        ItemMenuDTO itemAtualizado = service.atualizar(id, dto);
-        return ResponseEntity.ok(itemAtualizado);
+        ItemMenuDTO updatedItem = service.updateItemMenu(id, dto);
+        return ResponseEntity.ok(updatedItem);
     }
     
     /**
@@ -153,10 +153,10 @@ public class ItemMenuController {
      * PATCH /api/itens-cardapio/1/desativar
      */
     @PatchMapping("/{id}/desativar")
-    public ResponseEntity<Void> desativar(@PathVariable Long id) {
+    public ResponseEntity<Void> itemDesactive(@PathVariable Long id) {
         log.info("Requisição para desativar item ID: {}", id);
         
-        service.desactive(id);
+        service.ItemDesactive(id);
         return ResponseEntity.noContent().build();
     }
     
@@ -165,10 +165,10 @@ public class ItemMenuController {
      * PATCH /api/itens-cardapio/1/ativar
      */
     @PatchMapping("/{id}/ativar")
-    public ResponseEntity<Void> ativar(@PathVariable Long id) {
+    public ResponseEntity<Void> itemActive(@PathVariable Long id) {
         log.info("Requisição para ativar item ID: {}", id);
         
-        service.ativar(id);
+        service.ItemActive(id);
         return ResponseEntity.noContent().build();
     }
     
@@ -177,10 +177,10 @@ public class ItemMenuController {
      * DELETE /api/itens-cardapio/1
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+    public ResponseEntity<Void> itemDelete(@PathVariable Long id) {
         log.info("Requisição para excluir permanentemente item ID: {}", id);
         
-        service.delete(id);
+        service.ItemDelete(id);
         return ResponseEntity.noContent().build();
     }
     
@@ -189,7 +189,7 @@ public class ItemMenuController {
      * GET /api/itens-cardapio/estatisticas/categoria
      */
     @GetMapping("/estatisticas/categoria")
-    public ResponseEntity<List<Object[]>> obterEstatisticasPorCategoria() {
+    public ResponseEntity<List<Object[]>> getStatisticByCategory() {
         log.info("Requisição para obter estatísticas por categoria");
         
         List<Object[]> estatisticas = service.getStatisticByCategory();

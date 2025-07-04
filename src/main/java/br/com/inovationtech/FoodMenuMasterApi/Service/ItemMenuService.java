@@ -4,10 +4,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.inovationtech.FoodMenuMasterApi.DTOs.ItemMenuDTO;
@@ -17,16 +16,16 @@ import br.com.inovationtech.FoodMenuMasterApi.Entity.ItemMenuEntity;
 import br.com.inovationtech.FoodMenuMasterApi.Exceptions.BusinessException;
 import br.com.inovationtech.FoodMenuMasterApi.Exceptions.ResourceNotFoundException;
 import br.com.inovationtech.FoodMenuMasterApi.Repository.ItemMenuRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Service
+@RequiredArgsConstructor
+@Slf4j
 public class ItemMenuService {
     private final ItemMenuRepository repository;
     private final ItemMenuMapper mapper;
-    private static final Logger log = LoggerFactory.getLogger(ItemMenuService.class);
-    
-    public ItemMenuService(ItemMenuRepository repository, ItemMenuMapper mapper) {
-        this.repository = repository;
-        this.mapper = mapper;
-    }
+
     /**
      * Busca todos os itens com paginação
      */
@@ -45,7 +44,7 @@ public class ItemMenuService {
     public Page<ItemMenuDTO> buscarAtivos(Pageable pageable) {
         log.debug("Buscando itens ativos do cardápio com paginação: {}", pageable);
         
-        Page<ItemMenuEntity> itens = repository.findByAtivo(true, pageable);
+        Page<ItemMenuEntity> itens = repository.findByActive(true, pageable);
         return itens.map(mapper::toDTO);
     }
     
@@ -66,18 +65,19 @@ public class ItemMenuService {
      * Busca com filtros avançados
      */
     @Transactional(readOnly = true)
-    public Page<ItemMenuDTO> buscarComFiltros(String nome, CategoryItem categoria, BigDecimal precoMin, BigDecimal precoMax, Boolean ativo, Pageable pageable) {
-        log.debug("Buscando itens com filtros - Nome: {}, Categoria: {}, PreçoMin: {}, PreçoMax: {}, Ativo: {}", nome, categoria, precoMin, precoMax, ativo);
+    public Page<ItemMenuDTO> SearchingWithFilters(String name, CategoryItem category, BigDecimal minPrice, BigDecimal maxPrice, Boolean active, Pageable pageable) {
+        log.debug("Buscando com filtros - name: {}, category: {}, price: {}-{}, active: {}", 
+              name, category, minPrice, maxPrice, active);
         
-        Page<ItemMenuEntity> itens = repository.buscarComFiltros(nome, categoria, precoMin, precoMax, ativo, pageable);
-        return itens.map(mapper::toDTO);
+        Page<ItemMenuEntity> items = repository.searchWithFilters(name, category, minPrice, maxPrice, active, pageable);
+        return items.map(mapper::toDTO);
     }
     
     /**
      * Cria novo item
      */
     @Transactional
-    public ItemMenuDTO criar(ItemMenuDTO dto) {
+    public ItemMenuDTO createItem(ItemMenuDTO dto) {
         log.debug("Criando novo item do cardápio: {}", dto.getCategoryName());
         
         validationUniqueName(dto.getCategoryName(), null);
@@ -99,27 +99,27 @@ public class ItemMenuService {
      * Atualiza item existente
      */
     @Transactional
-    public ItemMenuDTO atualizar(Long id, ItemMenuDTO dto) {
+    public ItemMenuDTO updateItemMenu(Long id, ItemMenuDTO dto) {
         log.debug("Atualizando item do cardápio. ID: {}, Nome: {}", id, dto.getName());
         
-        ItemMenuEntity itemExistente = repository.findById(id)
+        ItemMenuEntity itemNonExistent = repository.findById(id)
           .orElseThrow(() -> new ResourceNotFoundException("Item não encontrado com ID: " + id));
         
         validationUniqueName(dto.getName(), id);
         
-        mapper.updateEntityFromDTO(dto, itemExistente);
+        mapper.updateEntityFromDTO(dto, itemNonExistent);
         
-        ItemMenuEntity itemAtualizado = repository.save(itemExistente);
-        log.info("Item atualizado com sucesso. ID: {}, Nome: {}", itemAtualizado.getId(), itemAtualizado.getName());
+        ItemMenuEntity itemUpdated = repository.save(itemNonExistent);
+        log.info("Item atualizado com sucesso. ID: {}, Nome: {}", itemUpdated.getId(), itemUpdated.getName());
         
-        return mapper.toDTO(itemAtualizado);
+        return mapper.toDTO(itemUpdated);
     }
     
     /**
      * Remove item (exclusão lógica - marca como inativo)
      */
     @Transactional
-    public void desactive(Long id) {
+    public void ItemDesactive(Long id) {
         log.debug("Desativando item do cardápio. ID: {}", id);
         
         ItemMenuEntity item = repository.findById(id)
@@ -135,7 +135,7 @@ public class ItemMenuService {
      * Reativa item
      */
     @Transactional
-    public void ativar(Long id) {
+    public void ItemActive(Long id) {
         log.debug("Ativando item do cardápio. ID: {}", id);
         
         ItemMenuEntity item = repository.findById(id)
@@ -151,7 +151,7 @@ public class ItemMenuService {
      * Exclusão física (usar com cuidado)
      */
     @Transactional
-    public void delete(Long id) {
+    public void ItemDelete(Long id) {
         log.debug("Excluindo permanentemente item do cardápio. ID: {}", id);
         
         if (!repository.existsById(id)) {
@@ -166,11 +166,11 @@ public class ItemMenuService {
      * Busca por categoria
      */
     @Transactional(readOnly = true)
-    public Page<ItemMenuDTO> getByCategory(CategoryItem categoria, Boolean ativo, Pageable pageable) {
-        log.debug("Buscando itens por categoria: {}, ativo: {}", categoria, ativo);
+    public Page<ItemMenuDTO> getByCategory(CategoryItem category, Boolean active, Pageable pageable) {
+        log.debug("Buscando itens por categoria: {}, active: {}", category, active);
         
-        Page<ItemMenuEntity> itens = repository.findByCategoriaAndAtivo(categoria, ativo, pageable);
-        return itens.map(mapper::toDTO);
+        Page<ItemMenuEntity> items = repository.findByCategoryAndActive(category, active, pageable);
+        return items.map(mapper::toDTO);
     }
     
     /**
@@ -192,7 +192,7 @@ public class ItemMenuService {
     @Transactional(readOnly = true)
     public List<Object[]> getStatisticByCategory() {
         log.debug("Obtendo estatísticas de itens por categoria");
-        return repository.countItensByCategory();
+        return repository.countItemsByCategory();
     }
     
     // Métodos auxiliares privados
@@ -202,8 +202,8 @@ public class ItemMenuService {
      */
     private void validationUniqueName(String name, Long idDelete) {
         boolean hasName = idDelete == null 
-            ? repository.existsByNomeIgnoreCase(name)
-            : repository.existsByNomeIgnoreCaseAndIdNot(name, idDelete);
+            ? repository.existsByNameIgnoreCase(name)
+            : repository.existsByNameIgnoreCaseAndIdNot(name, idDelete);
             
         if (hasName) {
             throw new BusinessException("Já existe um item com o nome: " + name);
