@@ -38,9 +38,13 @@ public interface ItemMenuRepository extends JpaRepository<ItemMenuEntity, Long>,
     // Search by active status
     Page<ItemMenuEntity> findByActiveTrue(Pageable pageable);
     Page<ItemMenuEntity> findByActive(Boolean active, Pageable pageable);
-    
+
+    Optional<ItemMenuEntity> findByIdAndCategoryAndActiveTrue(Long id, CategoryItem category);
+
     // Search by QR Code
     Optional<ItemMenuEntity> findByQrCode(String qrCode);
+    Page<ItemMenuEntity> findByCategory(CategoryItem category, Pageable pageable);
+    Page<ItemMenuEntity> findByCategoryAndActiveTrue(CategoryItem category, Pageable pageable);
     Optional<ItemMenuEntity> findByQrCodeAndActiveTrue(String qrCode);
     boolean existsByQrCode(String qrCode);
     
@@ -63,4 +67,5 @@ public interface ItemMenuRepository extends JpaRepository<ItemMenuEntity, Long>,
         @Param("active") Boolean active, 
         Pageable pageable
     );
+
 }

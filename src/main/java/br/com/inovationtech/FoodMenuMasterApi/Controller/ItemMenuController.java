@@ -195,4 +195,19 @@ public class ItemMenuController {
         List<Object[]> estatisticas = service.getStatisticByCategory();
         return ResponseEntity.ok(estatisticas);
     }
+
+    /**
+     * Busca item específico por ID dentro de uma categoria
+     * GET /itens-cardapio/categoria/PIZZA/item/1
+     */
+    @GetMapping("/categoria/{categoria}/item/{id}")
+    public ResponseEntity<ItemMenuDTO> searchByIdAndCategory(
+        @PathVariable Long id, 
+        @PathVariable CategoryItem category) {
+        
+        log.info("Requisição para buscar item ID: {} na categoria: {}", id, category);
+        
+        ItemMenuDTO item = service.searchByIdAndCategory(id, category);
+        return ResponseEntity.ok(item);
+    }
 }

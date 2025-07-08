@@ -26,7 +26,7 @@ public class CategoryMenuController {
      * GET /api/categorias
      */
     @GetMapping
-    public ResponseEntity<List<Map<String, String>>> listarCategorias() {
+    public ResponseEntity<List<Map<String, String>>> getAllCategories() {
         log.info("Requisição para listar todas as categorias");
         
         List<Map<String, String>> categories = Arrays.stream(CategoryItem.values())
@@ -45,16 +45,16 @@ public class CategoryMenuController {
      * GET /api/categorias/PIZZA
      */
     @GetMapping("/{codigo}")
-    public ResponseEntity<Map<String, String>> buscarCategoriaPorCodigo(@PathVariable String codigo) {
-        log.info("Requisição para buscar categoria por código: {}", codigo);
+    public ResponseEntity<Map<String, String>> getCategoryById(@PathVariable String id) {
+        log.info("Requisição para buscar categoria por código: {}", id);
         
         try {
-            CategoryItem categoria = CategoryItem.valueOf(codigo.toUpperCase());
+            CategoryItem category = CategoryItem.valueOf(id.toUpperCase());
             
             Map<String, String> response = Map.of(
-                "codigo", categoria.name(),
-                "nome", categoria.getName(),
-                "descricao", categoria.getDescription()
+                "codigo", category.name(),
+                "nome", category.getName(),
+                "descricao", category.getDescription()
             );
             
             return ResponseEntity.ok(response);
