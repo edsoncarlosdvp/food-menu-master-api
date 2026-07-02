@@ -32,7 +32,7 @@ public class ItemMenuService {
      * Lista todos os itens com paginação
      */
     @Transactional(readOnly = true)
-    public Page<ItemMenuDTO> buscarTodos(Pageable pageable) {
+    public Page<ItemMenuDTO> listAllMenuItensWithPagination(Pageable pageable) {
         log.info("Buscando todos os itens do cardápio");
         
         Page<ItemMenuEntity> entities = itemMenuRepository.findAll(pageable);
@@ -43,7 +43,7 @@ public class ItemMenuService {
      * Lista apenas itens ativos com paginação
      */
     @Transactional(readOnly = true)
-    public Page<ItemMenuDTO> buscarAtivos(Pageable pageable) {
+    public Page<ItemMenuDTO> listOnlyActiveItens(Pageable pageable) {
         log.info("Buscando itens ativos do cardápio");
         
         Page<ItemMenuEntity> entities = itemMenuRepository.findByActiveTrue(pageable);
@@ -54,7 +54,7 @@ public class ItemMenuService {
      * Busca item por ID
      */
     @Transactional(readOnly = true)
-    public ItemMenuDTO buscarPorId(Long id) {
+    public ItemMenuDTO searchItensById(Long id) {
         log.info("Buscando item por ID: {}", id);
         
         if (id == null) {
@@ -72,7 +72,7 @@ public class ItemMenuService {
      * Busca item por QR Code
      */
     @Transactional(readOnly = true)
-    public ItemMenuDTO getByQrCode(String qrCode) {
+    public ItemMenuDTO searchByQrCode(String qrCode) {
         log.info("Buscando item por QR Code: {}", qrCode);
         
         if (qrCode == null || qrCode.trim().isEmpty()) {
@@ -90,7 +90,7 @@ public class ItemMenuService {
      * Busca com filtros avançados
      */
     @Transactional(readOnly = true)
-    public Page<ItemMenuDTO> SearchingWithFilters(String nome, CategoryItem category, 
+    public Page<ItemMenuDTO> SearchWithFilters(String nome, CategoryItem category, 
             BigDecimal precoMin, BigDecimal precoMax, Boolean ativo, Pageable pageable) {
         
         log.info("Buscando itens com filtros - Nome: {}, Categoria: {}, Ativo: {}", nome, category, ativo);
@@ -112,7 +112,7 @@ public class ItemMenuService {
      * Busca por categoria
      */
     @Transactional(readOnly = true)
-    public Page<ItemMenuDTO> getByCategory(CategoryItem category, Boolean active, Pageable pageable) {
+    public Page<ItemMenuDTO> searchByCategory(CategoryItem category, Boolean active, Pageable pageable) {
         log.info("Buscando itens por categoria: {}, Ativo: {}", category, active);
         
         if (category == null) {
@@ -133,7 +133,7 @@ public class ItemMenuService {
     /**
      * Cria novo item
      */
-    public ItemMenuDTO createItem(ItemMenuDTO dto) {
+    public ItemMenuDTO createMenuItem(ItemMenuDTO dto) {
         log.info("Criando novo item: {}", dto.getName());
         
         // Validações
@@ -163,7 +163,7 @@ public class ItemMenuService {
     /**
      * Atualiza item existente
      */
-    public ItemMenuDTO updateItemMenu(Long id, ItemMenuDTO dto) {
+    public ItemMenuDTO updateMenuItem(Long id, ItemMenuDTO dto) {
         log.info("Atualizando item ID: {}", id);
         
         ItemMenuEntity entity = itemMenuRepository.findById(id)
@@ -249,7 +249,7 @@ public class ItemMenuService {
      * Busca item por ID dentro de uma categoria específica
      */
     @Transactional(readOnly = true)
-    public ItemMenuDTO searchByIdAndCategory(Long id, CategoryItem category) {
+    public ItemMenuDTO searchByIdInCategory(Long id, CategoryItem category) {
         log.info("Buscando item ID: {} na categoria: {}", id, category);
         
         if (id == null) {

@@ -42,11 +42,11 @@ public class ItemMenuController {
      * GET /api/itens-cardapio
      */
     @GetMapping
-    public ResponseEntity<Page<ItemMenuDTO>> listarTodos(
+    public ResponseEntity<Page<ItemMenuDTO>> getAllMenuItens(
             @PageableDefault(size = 20, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
         log.info("Requisição para listar todos os itens do cardápio");
         
-        Page<ItemMenuDTO> itens = service.buscarTodos(pageable);
+        Page<ItemMenuDTO> itens = service.listAllMenuItensWithPagination(pageable);
         return ResponseEntity.ok(itens);
     }
     
@@ -55,11 +55,11 @@ public class ItemMenuController {
      * GET /api/itens-cardapio/ativos
      */
     @GetMapping("/ativos")
-    public ResponseEntity<Page<ItemMenuDTO>> listarAtivos(
+    public ResponseEntity<Page<ItemMenuDTO>> getOnlyActiveItens(
             @PageableDefault(size = 20, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
         log.info("Requisição para listar itens ativos do cardápio");
         
-        Page<ItemMenuDTO> itens = service.buscarAtivos(pageable);
+        Page<ItemMenuDTO> itens = service.listOnlyActiveItens(pageable);
         return ResponseEntity.ok(itens);
     }
     
@@ -68,10 +68,10 @@ public class ItemMenuController {
      * GET /api/itens-cardapio/1
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ItemMenuDTO> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<ItemMenuDTO> getItensById(@PathVariable Long id) {
         log.info("Requisição para buscar item por ID: {}", id);
         
-        ItemMenuDTO item = service.buscarPorId(id);
+        ItemMenuDTO item = service.searchItensById(id);
         return ResponseEntity.ok(item);
     }
     
@@ -80,10 +80,10 @@ public class ItemMenuController {
      * GET /api/itens-cardapio/qr/QR-12345678
      */
     @GetMapping("/qr/{qrCode}")
-    public ResponseEntity<ItemMenuDTO> buscarPorQrCode(@PathVariable String qrCode) {
+    public ResponseEntity<ItemMenuDTO> getByQrCode(@PathVariable String qrCode) {
         log.info("Requisição para buscar item por QR Code: {}", qrCode);
         
-        ItemMenuDTO item = service.getByQrCode(qrCode);
+        ItemMenuDTO item = service.searchByQrCode(qrCode);
         return ResponseEntity.ok(item);
     }
     
@@ -92,7 +92,7 @@ public class ItemMenuController {
      * GET /api/itens-cardapio/buscar?nome=pizza&categoria=PIZZA&precoMin=10&precoMax=50&ativo=true
      */
     @GetMapping("/buscar")
-    public ResponseEntity<Page<ItemMenuDTO>> SearchingWithFilters(
+    public ResponseEntity<Page<ItemMenuDTO>> getWithFilters(
             @RequestParam(required = false) String nome,
             @RequestParam(required = false) CategoryItem category,
             @RequestParam(required = false) BigDecimal precoMin,
@@ -102,7 +102,7 @@ public class ItemMenuController {
         
         log.info("Requisição para buscar itens com filtros - Nome: {}, Categoria: {}", nome, category);
         
-        Page<ItemMenuDTO> itens = service.SearchingWithFilters(nome, category, precoMin, precoMax, ativo, pageable);
+        Page<ItemMenuDTO> itens = service.SearchWithFilters(nome, category, precoMin, precoMax, ativo, pageable);
         return ResponseEntity.ok(itens);
     }
     
@@ -111,14 +111,14 @@ public class ItemMenuController {
      * GET /api/itens-cardapio/categoria/PIZZA?ativo=true
      */
     @GetMapping("/categoria/{categoria}")
-    public ResponseEntity<Page<ItemMenuDTO>> searchByCategory(
+    public ResponseEntity<Page<ItemMenuDTO>> getByCategory(
             @PathVariable CategoryItem category,
             @RequestParam(defaultValue = "true") Boolean active,
             @PageableDefault(size = 20, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
         
         log.info("Requisição para buscar itens por categoria: {}", category);
         
-        Page<ItemMenuDTO> itens = service.getByCategory(category, active, pageable);
+        Page<ItemMenuDTO> itens = service.searchByCategory(category, active, pageable);
         return ResponseEntity.ok(itens);
     }
     
@@ -127,10 +127,10 @@ public class ItemMenuController {
      * POST /api/itens-cardapio
      */
     @PostMapping
-    public ResponseEntity<ItemMenuDTO> createItem(@Valid @RequestBody ItemMenuDTO dto) {
+    public ResponseEntity<ItemMenuDTO> createMenuItem(@Valid @RequestBody ItemMenuDTO dto) {
         log.info("Requisição para criar novo item: {}", dto.getName());
         
-        ItemMenuDTO itemCriado = service.createItem(dto);
+        ItemMenuDTO itemCriado = service.createMenuItem(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(itemCriado);
     }
     
@@ -139,12 +139,12 @@ public class ItemMenuController {
      * PUT /api/itens-cardapio/1
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ItemMenuDTO> updateItem(
+    public ResponseEntity<ItemMenuDTO> updateMenuItem(
             @PathVariable Long id, 
             @Valid @RequestBody ItemMenuDTO dto) {
         log.info("Requisição para atualizar item ID: {}", id);
         
-        ItemMenuDTO updatedItem = service.updateItemMenu(id, dto);
+        ItemMenuDTO updatedItem = service.updateMenuItem(id, dto);
         return ResponseEntity.ok(updatedItem);
     }
     
@@ -201,13 +201,13 @@ public class ItemMenuController {
      * GET /itens-cardapio/categoria/PIZZA/item/1
      */
     @GetMapping("/categoria/{categoria}/item/{id}")
-    public ResponseEntity<ItemMenuDTO> searchByIdAndCategory(
+    public ResponseEntity<ItemMenuDTO> getByIdInCategory(
         @PathVariable Long id, 
         @PathVariable CategoryItem category) {
         
         log.info("Requisição para buscar item ID: {} na categoria: {}", id, category);
         
-        ItemMenuDTO item = service.searchByIdAndCategory(id, category);
+        ItemMenuDTO item = service.searchByIdInCategory(id, category);
         return ResponseEntity.ok(item);
     }
 }
