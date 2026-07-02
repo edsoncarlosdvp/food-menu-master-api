@@ -21,7 +21,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.SQLServerDialect
-        format_sql: true
+        '[format_sql]': true
     defer-datasource-initialization: true
   
   sql:
@@ -33,10 +33,10 @@ server:
 
 logging:
   level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    com.microsoft.sqlserver: DEBUG
-    br.com.inovationtech: DEBUG
+    '[org.hibernate.SQL]': DEBUG
+    '[org.hibernate.type.descriptor.sql.BasicBinder]': TRACE
+    '[com.microsoft.sqlserver]': DEBUG
+    '[br.com.inovationtech]': DEBUG
 
 ---
 # Perfil para Docker
@@ -57,7 +57,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.SQLServerDialect
-        format_sql: true
+        '[format_sql]': true
     defer-datasource-initialization: true
 
 server:
@@ -65,7 +65,7 @@ server:
 
 logging:
   level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    com.microsoft.sqlserver: DEBUG
-    br.com.inovationtech: DEBUG
+    '[org.hibernate.SQL]': DEBUG
+    '[org.hibernate.type.descriptor.sql.BasicBinder]': TRACE
+    '[com.microsoft.sqlserver]': DEBUG
+    '[br.com.inovationtech]': DEBUG
