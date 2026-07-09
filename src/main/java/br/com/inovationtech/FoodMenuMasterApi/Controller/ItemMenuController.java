@@ -102,7 +102,7 @@ public class ItemMenuController {
         
         log.info("Requisição para buscar itens com filtros - Nome: {}, Categoria: {}", nome, category);
         
-        Page<ItemMenuDTO> itens = service.SearchWithFilters(nome, category, precoMin, precoMax, ativo, pageable);
+        Page<ItemMenuDTO> itens = service.searchWithFilters(nome, category, precoMin, precoMax, ativo, pageable);
         return ResponseEntity.ok(itens);
     }
     
@@ -112,7 +112,7 @@ public class ItemMenuController {
      */
     @GetMapping("/categoria/{categoria}")
     public ResponseEntity<Page<ItemMenuDTO>> getByCategory(
-            @PathVariable CategoryItem category,
+            @PathVariable("categoria") CategoryItem category,
             @RequestParam(defaultValue = "true") Boolean active,
             @PageableDefault(size = 20, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
         
@@ -202,8 +202,8 @@ public class ItemMenuController {
      */
     @GetMapping("/categoria/{categoria}/item/{id}")
     public ResponseEntity<ItemMenuDTO> getByIdInCategory(
-        @PathVariable Long id, 
-        @PathVariable CategoryItem category) {
+        @PathVariable("id") Long id, 
+        @PathVariable("categoria") CategoryItem category) {
         
         log.info("Requisição para buscar item ID: {} na categoria: {}", id, category);
         

@@ -45,11 +45,11 @@ public class CategoryMenuController {
      * GET /api/categorias/PIZZA
      */
     @GetMapping("/{codigo}")
-    public ResponseEntity<Map<String, String>> getCategoryById(@PathVariable String id) {
-        log.info("Requisição para buscar categoria por código: {}", id);
+    public ResponseEntity<Map<String, String>> getCategoryById(@PathVariable("codigo") String codigo) {
+        log.info("Requisição para buscar categoria por código: {}", codigo);
         
         try {
-            CategoryItem category = CategoryItem.valueOf(id.toUpperCase());
+            CategoryItem category = CategoryItem.valueOf(codigo.toUpperCase());
             
             Map<String, String> response = Map.of(
                 "codigo", category.name(),

@@ -3,6 +3,7 @@ package br.com.inovationtech.FoodMenuMasterApi.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -87,24 +88,18 @@ public class ItemMenuService {
     }
     
     /**
-     * Busca com filtros avançados
+     * Busca com filtros avançados (nome, categoria, faixa de preço e status)
      */
     @Transactional(readOnly = true)
-    public Page<ItemMenuDTO> SearchWithFilters(String nome, CategoryItem category, 
-            BigDecimal precoMin, BigDecimal precoMax, Boolean ativo, Pageable pageable) {
-        
-        log.info("Buscando itens com filtros - Nome: {}, Categoria: {}, Ativo: {}", nome, category, ativo);
-        
-        // Aqui você implementaria a lógica de filtros
-        // Por enquanto, vou fazer uma implementação básica
-        Page<ItemMenuEntity> entities;
-        
-        if (ativo == null || ativo) {
-            entities = itemMenuRepository.findByActiveTrue(pageable);
-        } else {
-            entities = itemMenuRepository.findAll(pageable);
-        }
-        
+    public Page<ItemMenuDTO> searchWithFilters(String name, CategoryItem category,
+            BigDecimal minPrice, BigDecimal maxPrice, Boolean active, Pageable pageable) {
+
+        log.info("Buscando itens com filtros - Nome: {}, Categoria: {}, Preco: [{}, {}], Ativo: {}",
+                name, category, minPrice, maxPrice, active);
+
+        Page<ItemMenuEntity> entities = itemMenuRepository.searchWithFilters(
+                name, category, minPrice, maxPrice, active, pageable);
+
         return entities.map(itemMenuMapper::toDTO);
     }
     
@@ -147,6 +142,9 @@ public class ItemMenuService {
         }
         
         ItemMenuEntity entity = itemMenuMapper.toEntity(dto);
+        // O ID é sempre gerado pelo banco; ignoramos qualquer valor vindo do client
+        // para evitar que a criação sobrescreva um registro existente.
+        entity.setId(null);
         entity.setActive(true);
         entity.setCreationDate(LocalDateTime.now());
         entity.setUpdateDate(LocalDateTime.now());
@@ -270,12 +268,13 @@ public class ItemMenuService {
     }
     
     /**
-     * Gera QR Code único
+     * Gera QR Code único.
+     * Usa UUID em vez de timestamp para eliminar risco de colisão sob concorrência.
      */
     private String generateUniqueQrCode() {
         String qrCode;
         do {
-            qrCode = "QR_" + System.currentTimeMillis();
+            qrCode = "QR_" + UUID.randomUUID();
         } while (itemMenuRepository.existsByQrCode(qrCode));
         
         return qrCode;
