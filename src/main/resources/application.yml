@@ -1,19 +1,26 @@
 spring:
+  application:
+    name: FoodMenuMasterApi
   profiles:
-    active: local
+    active: ${ACTIVE_PROFILE:local}
 
 ---
-# Perfil para desenvolvimento local
+# Perfil para desenvolvimento local (SQL Server via docker-compose)
 spring:
   config:
     activate:
       on-profile: local
   datasource:
     url: jdbc:sqlserver://localhost:1433;databaseName=FoodMenuDB;encrypt=false;trustServerCertificate=true
-    username: sa
-    password: FoodMenu123!
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD:FoodMenu123!}
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
-  
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 60000
+      connection-timeout: 30000
+      max-lifetime: 1800000
   jpa:
     hibernate:
       ddl-auto: update
@@ -22,6 +29,11 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.SQLServerDialect
         '[format_sql]': true
+        jdbc:
+          '[time_zone]': UTC
+          '[batch_size]': 20
+        '[order_inserts]': true
+        '[order_updates]': true
     defer-datasource-initialization: true
   
   sql:
@@ -29,7 +41,7 @@ spring:
       mode: always
 
 server:
-  port: 8080
+  port: 3100
 
 logging:
   level:
@@ -39,15 +51,15 @@ logging:
     '[br.com.inovationtech]': DEBUG
 
 ---
-# Perfil para Docker
+# Perfil para Docker (aplicação também containerizada)
 spring:
   config:
     activate:
       on-profile: docker
   datasource:
     url: jdbc:sqlserver://sqlserver:1433;databaseName=FoodMenuDB;encrypt=false;trustServerCertificate=true
-    username: sa
-    password: FoodMenu123!
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD:FoodMenu123!}
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   
   jpa:
@@ -66,6 +78,5 @@ server:
 logging:
   level:
     '[org.hibernate.SQL]': DEBUG
-    '[org.hibernate.type.descriptor.sql.BasicBinder]': TRACE
     '[com.microsoft.sqlserver]': DEBUG
     '[br.com.inovationtech]': DEBUG
