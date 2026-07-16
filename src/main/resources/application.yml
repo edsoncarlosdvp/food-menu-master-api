@@ -4,6 +4,17 @@ spring:
   profiles:
     active: ${ACTIVE_PROFILE:local}
 
+app:
+  security:
+    jwt:
+      secret: ${JWT_SECRET:5367566B59703373367639792F423F4528482B4D6251655468576D5A713474}
+      expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+    admin:
+      username: ${ADMIN_USERNAME:admin}
+      # BCrypt de "admin123" - troque por sua própria senha/hash
+      password-hash: ${ADMIN_PASSWORD_HASH:$2a$10$9pO7l9Rz1YV4gk5x1efIfeQx3vFq2yQ2gk8Dxq7T2p3G6mYd2hZoi}
+    cors:
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
 ---
 # Perfil para desenvolvimento local (SQL Server via docker-compose)
 spring:
